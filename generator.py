@@ -1,27 +1,13 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, PhotoImage
+import qrcode
+from PIL import Image, ImageTk
 
 root = tk.Tk()
 root.title("QR Code Generator")
 
 
-
-def convert_to_binary(number):
-    res = ""
-    while number > 0:
-        res += str(number%2)
-        number //= 2
-    return(res[::-1]).zfill(8)
-
-def generate():
-    bits = "0100"
-    text = entry.get()
-    bits += convert_to_binary(len(text)).zfill(8)
-    for i in text:
-        bits +=  convert_to_binary(ord(i))
-    bits += "0000"
-    print(bits)
-
+counter = 1
 
 frame = tk.Frame(root)
 frame.grid(row=0, column=0)
@@ -29,7 +15,29 @@ frame.grid(row=0, column=0)
 entry = tk.Entry(frame)
 entry.grid(row=0, column=0)
 
+image_label = tk.Label(frame)
+image_label.grid(row=1, column=0)
+
+def generate():
+    global counter
+    qr = qrcode.QRCode()
+    text = entry.get()
+    qr.add_data(text)
+    img = qr.make_image()
+    filename = f"./images/qrcode{counter}.png"
+    img.save(filename)
+    pil_img = Image.open(filename)
+    tk_image = ImageTk.PhotoImage(pil_img)
+    print("QR code generated!")
+    tk_image = PhotoImage(file=f"./images/qrcode{counter}.png")
+    image_label.configure(image=tk_image)
+    counter += 1
+
 entry_btn = tk.Button(frame, text="Generate!", command=generate)
-entry_btn.grid(row=0, column=1)
+entry_btn.grid(row=2, column=0)
+
+    
+
+
 
 root.mainloop()
